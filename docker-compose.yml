@@ -2,3 +2,9 @@ services:
   notification-adapter-api:
     build: .
     restart: always
+  networks:
+    - dokploy-network
+netowrks:
+  dokploy-network:
+    external: true
+  
