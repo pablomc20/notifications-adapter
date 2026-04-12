@@ -1,5 +1,5 @@
 # Build (Jammy-based image; JRE/JDK layers get regular security rebuilds)
-FROM maven:3.9.9-eclipse-temurin-17-jammy AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
