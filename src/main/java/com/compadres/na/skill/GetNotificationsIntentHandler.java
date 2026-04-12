@@ -61,7 +61,7 @@ public class GetNotificationsIntentHandler implements RequestHandler {
         } else {
             ssml.append("Tienes ").append(notificaciones.size()).append(" notificaciones. ");
             for (String notificacion : notificaciones) {
-                ssml.append(notificacion).append("<break time='500ms'/>");
+                ssml.append(escapeSsmlPlainText(notificacion)).append("<break time='500ms'/>");
             }
         }
         ssml.append("</speak>");
@@ -75,5 +75,16 @@ public class GetNotificationsIntentHandler implements RequestHandler {
     private static String userIdPrefix(String userId) {
         int n = Math.min(12, userId.length());
         return n <= 0 ? "?" : userId.substring(0, n) + "...";
+    }
+
+    /**
+     * Escapes XML special characters so arbitrary notification text cannot break out of {@code <speak>}
+     * or inject SSML tags. {@code &} must be replaced first.
+     */
+    public static String escapeSsmlPlainText(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        return raw.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }
