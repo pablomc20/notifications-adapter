@@ -2,9 +2,13 @@ services:
   notification-adapter-api:
     build: .
     restart: always
-  networks:
-    - dokploy-network
+    networks:
+      - dokploy-network
+    ports:
+      - "8080:8080"
 netowrks:
   dokploy-network:
     external: true
   
+ports:
+  - "8080: 8080"
