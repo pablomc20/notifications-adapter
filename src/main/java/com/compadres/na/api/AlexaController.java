@@ -3,15 +3,21 @@ package com.compadres.na.api;
 import com.amazon.ask.Skill;
 import com.amazon.ask.model.RequestEnvelope;
 import com.amazon.ask.model.ResponseEnvelope;
-import com.amazon.ask.util.JacksonSerializer;
-import com.compadres.na.models.alexa.AlexaRequest;
-import com.compadres.na.models.alexa.AlexaResponse;
-import com.compadres.na.service.alexa.AlexaService;
+import com.amazon.ask.model.services.Serializer;
+import com.compadres.na.alexa.AlexaWebhookSecurityService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
@@ -19,32 +25,42 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AlexaController {
 
-    private final AlexaService alexaService;
+    private static final String CONTENT_JSON_UTF8 = "application/json;charset=UTF-8";
 
-    // @PostMapping(value = "/webhook", produces = "application/json")
-    // public ResponseEntity<byte[]> handleAlexaRequest(@RequestBody byte[] body) {
-    //     try {
-    //         // 1. Transformar el JSON crudo en el objeto RequestEnvelope de Amazon
-    //         String jsonRequest = new String(body);
-    //         RequestEnvelope requestEnvelope = serializer.deserialize(jsonRequest, RequestEnvelope.class);
+    private final Serializer serializer;
+    private final Skill alexaSkill;
+    private final AlexaWebhookSecurityService alexaWebhookSecurityService;
 
-    //         // 2. Delegar la ejecución a la Skill (Esto invoca mágicamente tu LaunchRequestHandler o IntentHandler)
-    //         ResponseEnvelope responseEnvelope = alexaSkill.invoke(requestEnvelope);
+    @PostMapping(value = "/webhook", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<byte[]> handleAlexaRequest(HttpServletRequest httpRequest, @RequestBody byte[] body) {
+        try {
+            if (body == null || body.length == 0) {
+                return ResponseEntity.badRequest().build();
+            }
 
-    //         // 3. Serializar la respuesta de vuelta a bytes JSON
-    //         byte[] responseBytes = serializer.serialize(responseEnvelope).getBytes();
+            String jsonRequest = new String(body, StandardCharsets.UTF_8);
+            RequestEnvelope requestEnvelope = serializer.deserialize(jsonRequest, RequestEnvelope.class);
 
-    //         // 4. Retornar HTTP 200 OK a los servidores de Amazon
-    //         return ResponseEntity.ok(responseBytes);
+            String signature = AlexaWebhookSecurityService.signatureFromHeaders(httpRequest::getHeader);
+            String certChainUrl = AlexaWebhookSecurityService.certUrlFromHeaders(httpRequest::getHeader);
+            alexaWebhookSecurityService.verifyIfEnabled(requestEnvelope, body, signature, certChainUrl);
 
-    //     } catch (Exception e) {
-    //         log.error("Error procesando la petición de Alexa", e);
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    // }
+            log.info(
+                    "Alexa webhook request type={}",
+                    requestEnvelope.getRequest() != null ? requestEnvelope.getRequest().getType() : "null");
 
-    @PostMapping(value = "/webhook")
-    public AlexaResponse handleAlexa(@RequestBody AlexaRequest request) {
-        return alexaService.processRequest(request);
+            ResponseEnvelope responseEnvelope = alexaSkill.invoke(requestEnvelope);
+            byte[] responseBytes = serializer.serialize(responseEnvelope).getBytes(StandardCharsets.UTF_8);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, CONTENT_JSON_UTF8)
+                    .body(responseBytes);
+        } catch (SecurityException e) {
+            log.warn("Alexa webhook rejected: {}", e.getMessage());
+            return ResponseEntity.status(403).build();
+        } catch (Exception e) {
+            log.error("Error procesando la petición de Alexa", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
