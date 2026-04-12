@@ -3,12 +3,9 @@ services:
     build: .
     restart: always
     networks:
-      - dokploy-network
+      dokploy-network: {}
     ports:
       - "8080:8080"
-netowrks:
+networks:
   dokploy-network:
     external: true
-  
-ports:
-  - "8080: 8080"
