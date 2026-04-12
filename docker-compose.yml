@@ -1,20 +1,4 @@
 services:
-  notification-adpater-api:
+  notification-adapter-api:
     build: .
-    container_name: notification-adpater-api
     restart: always
-    networks:
-      - web
-    labels:
-      - "traefik.enable=true"
-      # Usamos el nombre del servicio para evitar confusiones
-      - "traefik.http.routers.notification.rule=Host(`api.carpinteriamarqz.online`)"
-      - "traefik.http.routers.notification.entrypoints=websecure"
-      - "traefik.http.routers.notification.tls=true"
-      - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
-      # Verifica que tu app no use el puerto 5000 o similar
-      - "traefik.http.services.notification.loadbalancer.server.port=8080"
-
-networks:
-  web:
-    external: true
