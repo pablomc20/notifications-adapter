@@ -7,11 +7,13 @@ services:
       - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.alexa.rule=Host(`api.carpinteriamarqz.online`)"
-      - "traefik.http.routers.alexa.entrypoints=websecure"
-      - "traefik.http.routers.alexa.tls=true"
-      - "traefik.http.routers.alexa.tls.certresolver=letsencrypt"
-      - "traefik.http.services.alexa.loadbalancer.server.port=8080"
+      # Usamos el nombre del servicio para evitar confusiones
+      - "traefik.http.routers.notification.rule=Host(`api.carpinteriamarqz.online`)"
+      - "traefik.http.routers.notification.entrypoints=websecure"
+      - "traefik.http.routers.notification.tls=true"
+      - "traefik.http.routers.notification.tls.certresolver=letsencrypt"
+      # Verifica que tu app no use el puerto 5000 o similar
+      - "traefik.http.services.notification.loadbalancer.server.port=8080"
 
 networks:
   web:
