@@ -20,7 +20,7 @@ public class AlexaSkillConfig {
                         getNotificationsIntentHandler
                 )
                 // Evita procesar peticiones que no vengan de tu Skill real
-                // .withSkillId("amzn1.ask.skill.XXXXX-XXXXX") 
+                .withSkillId("amzn1.ask.skill.XXXXX-XXXXX") 
                 .build();
     }
 
