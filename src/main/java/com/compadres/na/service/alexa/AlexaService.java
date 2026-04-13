@@ -12,24 +12,26 @@ public class AlexaService {
 
     public AlexaResponse processRequest(AlexaRequest request) {
 
-        String intentName = request.getRequest().getIntent().getName();
+        String type = request.getRequest().getType();
 
-        if ("LaunchRequest".equals(request.getRequest().getType())) {
+        // 1. Manejamos el LaunchRequest primero (aquí NO hay intent)
+        if ("LaunchRequest".equals(type)) {
             return buildResponse("Bienvenido a Carpintería Marqz");
         }
 
-        String speechText;
+        // 2. Si es un IntentRequest, entonces SÍ buscamos el nombre
+        if ("IntentRequest".equals(type) && request.getRequest().getIntent() != null) {
+            String intentName = request.getRequest().getIntent().getName();
 
-        switch (intentName) {
-            case "GetNotificationsIntent":
-                speechText = "Tu mueble Silla hermética está en proceso de diseño";
-                break;
-
-            default:
-                speechText = "No entendí tu solicitud";
+            switch (intentName) {
+                case "GetNotificationsIntent":
+                    return buildResponse("Tu mueble Silla hermética está en proceso de diseño");
+                default:
+                    return buildResponse("No entendí tu solicitud");
+            }
         }
 
-        return buildResponse(speechText);
+        return buildResponse("Lo siento, ocurrió un error inesperado.");
     }
 
     private AlexaResponse buildResponse(String text) {
