@@ -1,4 +1,4 @@
-package com.compadres.na.client;
+package com.compadres.na.components.handlers;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;

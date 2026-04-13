@@ -2,8 +2,12 @@ package com.compadres.na.config.aws;
 
 import com.amazon.ask.Skill;
 import com.amazon.ask.Skills;
-import com.compadres.na.client.GetNotificationsIntentHandler;
-import com.compadres.na.client.LaunchRequestHandlerImpl;
+import com.compadres.na.components.handlers.AmazonFallbackIntentHandler;
+import com.compadres.na.components.handlers.AmazonHelpIntentHandler;
+import com.compadres.na.components.handlers.AmazonStopCancelIntentHandler;
+import com.compadres.na.components.handlers.GetNotificationsIntentHandler;
+import com.compadres.na.components.handlers.LaunchRequestHandlerImpl;
+import com.compadres.na.components.handlers.SessionEndedRequestHandlerImpl;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,15 +16,24 @@ import org.springframework.context.annotation.Configuration;
 public class AlexaSkillConfig {
 
     @Bean
-    public Skill alexaSkill(LaunchRequestHandlerImpl launchRequestHandler,
-                            GetNotificationsIntentHandler getNotificationsIntentHandler) {
+    public Skill alexaSkill(
+            AlexaProperties alexaProperties,
+            LaunchRequestHandlerImpl launchRequestHandler,
+            GetNotificationsIntentHandler getNotificationsIntentHandler,
+            SessionEndedRequestHandlerImpl sessionEndedRequestHandlerImpl,
+            AmazonFallbackIntentHandler amazonFallbackIntentHandler,
+            AmazonStopCancelIntentHandler amazonStopCancelIntentHandler,
+            AmazonHelpIntentHandler amazonHelpIntentHandler) {
         return Skills.standard()
                 .addRequestHandlers(
-                        launchRequestHandler,
-                        getNotificationsIntentHandler
+                    launchRequestHandler,
+                    getNotificationsIntentHandler,
+                    sessionEndedRequestHandlerImpl,
+                    amazonFallbackIntentHandler,
+                    amazonHelpIntentHandler,
+                    amazonStopCancelIntentHandler
                 )
-                // Evita procesar peticiones que no vengan de tu Skill real
-                .withSkillId("amzn1.ask.skill.XXXXX-XXXXX") 
+                .withSkillId(alexaProperties.getSkillId())
                 .build();
     }
 

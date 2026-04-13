@@ -1,4 +1,4 @@
-package com.compadres.na.client;
+package com.compadres.na.components.handlers;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
@@ -6,32 +6,30 @@ import com.amazon.ask.model.Response;
 import com.amazon.ask.request.Predicates;
 import com.compadres.na.service.alexa.NotificationService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class GetNotificationsIntentHandler implements RequestHandler {
 
     private final NotificationService notificationService;
 
-    // Inyectamos el servicio simulado
-    public GetNotificationsIntentHandler(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
-
     @Override
     public boolean canHandle(HandlerInput input) {
-        // El nombre debe coincidir EXACTAMENTE con el intent creado en la Consola de Alexa
         return input.matches(Predicates.intentName("GetNotificationsIntent"));
     }
 
     @Override
     public Optional<Response> handle(HandlerInput input) {
-        // En una app real, sacarías el ID así: input.getRequestEnvelope().getContext().getSystem().getUser().getId();
-        String fakeUserId = "amzn1.123"; 
-        
+        // En una app real, sacarías el ID así:
+        // input.getRequestEnvelope().getContext().getSystem().getUser().getId();
+        String fakeUserId = "amzn1.123";
+
         List<String> notificaciones = notificationService.getUnreadNotifications(fakeUserId);
 
         StringBuilder respuestaBuilder = new StringBuilder("<speak>");
