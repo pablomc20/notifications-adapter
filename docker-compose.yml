@@ -5,9 +5,3 @@ services:
       dockerfile: Dockerfile
     container_name: notification-adapter-api
     restart: always
-    networks:
-      - dokploy-network
-
-networks:
-  dokploy-network:
-    external: true
