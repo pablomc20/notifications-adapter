@@ -5,3 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: notification-adapter-api
     restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
