@@ -42,8 +42,4 @@ public class AlexaController {
         }
     }
 
-    // @PostMapping(value = "/webhook")
-    // public AlexaResponse handleAlexa(@RequestBody AlexaRequest request) {
-    //     return alexaService.processRequest(request);
-    // }
 }

@@ -1,10 +1,12 @@
 package com.compadres.na.config.aws;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Externalized Alexa skill settings. Bind from {@code alexa.*} in application properties.
  */
+@Component
 @ConfigurationProperties(prefix = "alexa")
 public class AlexaProperties {
 
